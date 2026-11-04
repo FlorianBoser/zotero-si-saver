@@ -227,6 +227,19 @@ and keep their original authors, license statements and test cases. Each modifie
 says so at its top. `ScienceDirect.js` has no license statement of its own and relies on
 the [statement for the Zotero project](https://www.zotero.org/support/licensing).
 
+**Credits.** The translators were created by the authors below and improved by the
+contributors of [zotero/translators](https://github.com/zotero/translators). This project
+only adds the SI handling.
+
+| File | Original authors |
+|---|---|
+| `Atypon Journals.js` | Sebastian Karcher and Abe Jellinek |
+| `Nature Publishing Group.js` | Aurimas Vinckevicius |
+| `ScienceDirect.js` | Michael Berkowitz and Aurimas Vinckevicius |
+| `Silverchair.js` | Sebastian Karcher |
+| `Wiley Online Library.js` | Sean Takats, Michael Berkowitz, Avram Lyon and Aurimas Vinckevicius |
+| `arXiv.org.js` | Sean Takats and Michael Berkowitz |
+
 This is an independent project. It is not affiliated with or endorsed by Zotero or
 any publisher. You are responsible for following the terms of your publisher access.
 
