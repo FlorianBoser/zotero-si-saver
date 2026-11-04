@@ -13,6 +13,11 @@
 }
 
 /*
+	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
+	information. Changes are marked with "SI_saver".
+*/
+
+/*
 	***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2020-2022 Sebastian Karcher and Abe Jellinek

@@ -12,6 +12,16 @@
 	"lastUpdated": "2099-01-01 00:00:03"
 }
 
+/*
+	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
+	information. Changes are marked with "SI_saver".
+
+	This file has no license statement of its own. It comes from the Zotero project,
+	whose source code is released under the GNU Affero General Public License
+	version 3 unless otherwise indicated: https://www.zotero.org/support/licensing
+	The changes of the zotero-si-saver project are licensed under AGPL-3.0-or-later.
+*/
+
 function detectWeb(doc, url) {
 	if (!doc.body.textContent.trim()) return false;
 

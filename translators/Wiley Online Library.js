@@ -13,6 +13,11 @@
 }
 
 /*
+	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
+	information. Changes are marked with "SI_saver".
+*/
+
+/*
    Wiley Online Translator
    Copyright (C) 2011-2021 CHNM, Avram Lyon and Aurimas Vinckevicius
 

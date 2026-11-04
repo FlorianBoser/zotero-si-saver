@@ -12,6 +12,11 @@
 	"lastUpdated": "2099-01-01 00:00:03"
 }
 
+/*
+	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
+	information. Changes are marked with "SI_saver".
+*/
+
 /**
 	Copyright (c) 2012 Aurimas Vinckevicius
 	

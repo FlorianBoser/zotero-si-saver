@@ -6,7 +6,7 @@
 
 <div align="center">
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+[![License: AGPL v3+](https://img.shields.io/badge/License-AGPL_v3%2B-blue.svg)](LICENSE)
 [![Zotero: 10.0.7 tested](https://img.shields.io/badge/Zotero-10.0.7_tested-cc2936.svg)](#tested-versions)
 [![Connector: 5.0.217 tested](https://img.shields.io/badge/Connector-5.0.217_tested-1f6feb.svg)](#tested-versions)
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](#tested-versions)
@@ -221,9 +221,11 @@ also try a change in the browser. When you change a translator, keep these rules
 
 ## License
 
-The changes in this project are licensed under AGPL-3.0, see [LICENSE](LICENSE). The
-translator files come from [zotero/translators](https://github.com/zotero/translators)
-and keep their original authors and license statements.
+The changes in this project are licensed under AGPL-3.0-or-later, see [LICENSE](LICENSE).
+The translator files come from [zotero/translators](https://github.com/zotero/translators)
+and keep their original authors, license statements and test cases. Each modified file
+says so at its top. `ScienceDirect.js` has no license statement of its own and relies on
+the [statement for the Zotero project](https://www.zotero.org/support/licensing).
 
 This is an independent project. It is not affiliated with or endorsed by Zotero or
 any publisher. You are responsible for following the terms of your publisher access.
