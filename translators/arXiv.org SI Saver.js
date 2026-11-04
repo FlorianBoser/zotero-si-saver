@@ -9,12 +9,12 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 */
 
 /*
@@ -331,12 +331,22 @@ var siSaverTypes = {
 	docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 };
 
+// SI_saver: a badly encoded file name must not lose the other SI files
+function siSaverDecode(name) {
+	try {
+		return decodeURIComponent(name);
+	}
+	catch (e) {
+		return name;
+	}
+}
+
 // SI_saver: reads the ancillary files of the abstract page
 function siSaverSupplements(doc) {
 	let seen = new Set();
 	let files = [];
 	for (let link of doc.querySelectorAll('.ancillary a.anc-file-name[href]')) {
-		let name = decodeURIComponent(link.getAttribute('href').split(/[?#]/)[0].split('/').pop());
+		let name = siSaverDecode(link.getAttribute('href').split(/[?#]/)[0].split('/').pop());
 		let extension = (name.match(/\.([a-z0-9]+)$/i) || [])[1];
 		extension = extension && extension.toLowerCase();
 		if (!siSaverTypes[extension] || seen.has(link.href)) continue;
@@ -373,6 +383,7 @@ async function doWeb(doc, url) {
 		}
 	}
 	else {
+		// SI_saver: remembers the page for its ancillary files
 		siSaverDoc = doc;
 		let id = url.match(/(?:pdf|abs)\/([^?#]+)(?:\.pdf)?/)[1];
 		let versionMatch = url.match(/v(\d+)(\.pdf)?([?#].+)?$/);
@@ -469,6 +480,7 @@ function parseSingleEntry(entry) {
 		url: newItem.url,
 		mimeType: "text/html"
 	});
+	// SI_saver: adds the ancillary files of a single article
 	if (siSaverDoc) {
 		siSaverAddSupplements(siSaverDoc, newItem);
 	}

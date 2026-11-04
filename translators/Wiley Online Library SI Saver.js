@@ -9,12 +9,12 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 */
 
 /*
@@ -142,6 +142,7 @@ function siSaverAddSupplements(doc, item) {
 	}
 }
 
+// SI_saver: one attachment in the form Zotero expects
 function siSaverAttachment(title, url, extension) {
 	return {
 		title: title,
@@ -238,6 +239,7 @@ function scrapeEM(doc, url) {
 				mimeType: 'application/pdf'
 			});
 		}
+		// SI_saver: adds the SI files
 		siSaverAddSupplements(doc, item);
 		item.complete();
 	});
@@ -401,6 +403,7 @@ function scrapeBibTeX(doc, url) {
 					mimeType: 'application/pdf'
 				});
 			}
+			// SI_saver: adds the SI files
 			siSaverAddSupplements(doc, item);
 			item.complete();
 		});

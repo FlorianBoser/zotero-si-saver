@@ -9,12 +9,12 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 */
 
 /*
@@ -314,6 +314,7 @@ function siSaverAddSupplements(doc, item) {
 	}
 }
 
+// SI_saver: one attachment in the form Zotero expects
 function siSaverAttachment(title, url, extension) {
 	return {
 		title: title,
@@ -323,13 +324,23 @@ function siSaverAttachment(title, url, extension) {
 	};
 }
 
+// SI_saver: a badly encoded file name must not lose the other SI files
+function siSaverDecode(name) {
+	try {
+		return decodeURIComponent(name);
+	}
+	catch (e) {
+		return name;
+	}
+}
+
 // SI_saver: reads the Supplementary Materials links of the current website
 function siSaverSupplements(doc) {
 	let seen = new Set();
 	let files = [];
 	for (let link of doc.querySelectorAll('a[href*="/doi/suppl/"][href*="/suppl_file/"]')) {
 		let path = link.getAttribute('href').split(/[?#]/)[0];
-		let name = decodeURIComponent(path.slice(path.lastIndexOf('/') + 1));
+		let name = siSaverDecode(path.slice(path.lastIndexOf('/') + 1));
 		let extension = (name.match(/\.([a-z0-9]+)$/i) || [])[1];
 		extension = extension && extension.toLowerCase();
 		if (!siSaverTypes[extension] || seen.has(link.href)) continue;
@@ -461,6 +472,7 @@ function scrape(doc, url, extras) {
 					delete item.numberOfVolumes;
 				}
 				
+				// SI_saver: repairs ChemRxiv items and adds the SI files
 				siSaverFixChemRxiv(doc, url, item);
 				siSaverAddSupplements(doc, item);
 				item.complete();

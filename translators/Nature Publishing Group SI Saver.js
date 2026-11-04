@@ -9,12 +9,12 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 */
 
 /**
@@ -36,14 +36,6 @@
 */
 
 // mimetype map for supplementary attachments
-var suppTypeMap = {
-	pdf: 'application/pdf',
-	//	'zip': 'application/zip',
-	doc: 'application/msword',
-	xls: 'application/vnd.ms-excel',
-	excel: 'application/vnd.ms-excel'
-};
-
 // SI_saver: the only file types saved from the current website
 var siSaverTypes = {
 	pdf: 'application/pdf',
@@ -51,18 +43,15 @@ var siSaverTypes = {
 	docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 };
 
-// SI_saver: reads the current website. Returns true if the page lists SI files,
-// also when none has a wanted type, so that the older code below is skipped.
+// SI_saver: reads the current website
 function attachCurrentSupplements(doc, item, attachAsLink) {
 	let links = doc.querySelectorAll('[data-test="supp-item"] a[data-test="supp-info-link"][href]');
 	let seen = new Set();
-	let listed = false;
 	for (let link of links) {
 		let label = ZU.trimInternal(link.textContent);
 		// Extended Data figure pages share these attributes but have no download label
 		let fileType = label.match(/\(\s*download\s+([a-z0-9]+)\s*\)\s*$/i);
 		if (!fileType) continue;
-		listed = true;
 		let mimeType = siSaverTypes[fileType[1].toLowerCase()];
 		if (!mimeType || seen.has(link.href)) continue;
 		seen.add(link.href);
@@ -74,163 +63,13 @@ function attachCurrentSupplements(doc, item, attachAsLink) {
 		if (attachAsLink) attachment.snapshot = false;
 		item.attachments.push(attachment);
 	}
-	return listed;
 }
 
-function attachSupplementary(doc, item, next) {
-	// nature's new website
-	var attachAsLink = Z.getHiddenPref("supplementaryAsLink");
-	if (attachCurrentSupplements(doc, item, attachAsLink)) return;
-	var suppDiv = doc.getElementById("supplementary-information");
-	if (suppDiv) {
-		var fileClasses = ZU.xpath(suppDiv, './/div[contains(@class, "supp-info")]/h2');
-		for (var i = 0, n = fileClasses.length; i < n; i++) {
-			var type = fileClasses[i].classList.item(0);
-			if (type) type = suppTypeMap[type];
-			
-			if (!fileClasses[i].nextElementSibling) continue;
-			var dls = fileClasses[i].nextElementSibling.getElementsByTagName('dl');
-			for (var j = 0, m = dls.length; j < m; j++) {
-				var link = ZU.xpath(dls[j], './dt/a')[0];
-				if (!link) {
-					continue;
-				}
-	
-				var title = dls[j].getElementsByTagName('dd')[0];
-				if (title) {
-					title = title.textContent.replace(
-						/^[\s\r\n]*(?:Th(?:is|e) )?file (?:contains|shows)\s+(\S+)/i,
-						function (m, firstWord) {	// fix capitalization of first word
-							if (firstWord.toLowerCase() == firstWord) {	// lower case word
-								return firstWord.charAt(0).toUpperCase() + firstWord.substr(1);
-							}
-							return firstWord;
-						}
-					).trim();
-				}
-				
-				// add the heading from link
-				title = link.textContent.replace(/\s+\([^()]+\)\s*$/g, '').trim()	// strip off the file size info
-						+ ". " + (title || '');
-
-				// fallback if we fail miserably
-				if (!title) title = "Supplementary file";
-				
-				var attachment = {
-					title: title,
-					url: link.href
-				};
-				
-				if (type) attachment.mimeType = type;
-				if (attachAsLink || !type) {	// don't download unknown file types
-					attachment.snapshot = false;
-				}
-				
-				item.attachments.push(attachment);
-			}
-		}
-		return;
-	}
-	
-	// older websites, e.g. http://www.nature.com/onc/journal/v31/n6/full/onc2011282a.html
-	var suppLink = doc.getElementById('articlenav') || doc.getElementById('extranav');
-	if (suppLink) {
-		suppLink = ZU.xpath(suppLink, './ul/li//a[text()="Supplementary info"]')[0]; // unfortunately, this is the best we can do
-		if (!suppLink) return;
-		
-		if (attachAsLink) {	// we don't need to find links to individual files
-			item.attachments.push({
-				title: "Supplementary info",
-				url: suppLink.href,
-				mimeType: 'text/html',
-				snapshot: false
-			});
-		}
-		else {
-			ZU.processDocuments(suppLink.href, function (newDoc) {
-				var content = newDoc.getElementById('content');
-				if (content) {
-					var links = ZU.xpath(content, './div[@class="container-supplementary" or @id="general"]//a');
-					for (var i = 0, n = links.length; i < n; i++) {
-						var title = ZU.trimInternal(links[i].textContent);
-						var type = title.match(/\((\w+)\s+\d+[^)]+\)\s*$/);
-						if (type) type = suppTypeMap[type[1]];
-						if (!type) {
-							type = links[i].classList;
-							type = type.item(type.length - 1);
-							if (type) type = suppTypeMap[type.replace(/^(?:i|all)-/, '')];
-						}
-						
-						// clean up title a bit
-						title = title.replace(/\s*\([^()]+\)$/, '')
-									.replace(/\s*-\s*download\b.*/i, '');
-						
-						item.attachments.push({
-							title: title,
-							url: links[i].href,
-							mimeType: type,
-							snapshot: !!type	// don't download unknown file types
-						});
-					}
-				}
-				next(doc, item);
-			});
-			return;
-		}
-		return;
-	}
-	
-	// e.g. http://www.nature.com/ng/journal/v38/n11/full/ng1901.html
-	suppLink = ZU.xpath(doc, '(//a[text()="Supplementary info"])[last()]')[0];
-	if (suppLink) {
-		if (attachAsLink) {	// we don't need to find links to individual files
-			item.attachments.push({
-				title: "Supplementary info",
-				url: suppLink.href,
-				mimeType: 'text/html',
-				snapshot: false
-			});
-		}
-		else {
-			Z.debug(suppLink.href);
-			ZU.processDocuments(suppLink.href, function (newDoc) {
-				var links = ZU.xpath(newDoc, './/p[@class="articletext"]');
-				Z.debug("Found " + links.length + " links");
-				for (var i = 0, n = links.length; i < n; i++) {
-					var link = links[i].getElementsByTagName('a')[0];
-					if (!link) continue;
-					
-					var title = ZU.trimInternal(link.textContent);
-					
-					var type = title.match(/\((\w+)\s+\d+[^)]+\)\s*$/);
-					if (type) type = suppTypeMap[type[1]];
-					
-					// clean up title a bit
-					title = title.replace(/\s*\([^()]+\)$/, '')
-								.replace(/\s*-\s*download\b.*/i, '');
-					
-					// maybe we can attach description to title
-					// can this be too long? I would probably make more sense to attach these as notes on the files
-					// how do we do that?
-					var desc = ZU.xpathText(links[i], './node()[last()][not(name())]');	// last text node
-					if (desc && (desc = ZU.trimInternal(desc))) {
-						title += '. ' + desc;
-					}
-					
-					item.attachments.push({
-						title: title,
-						url: links[i].href,
-						mimeType: type,
-						snapshot: !!type	// don't download unknown file types
-					});
-				}
-				next(doc, item);
-			});
-		}
-	}
+// SI_saver: the older code for earlier websites is removed, it also saved spreadsheets
+function attachSupplementary(doc, item) {
+	attachCurrentSupplements(doc, item, Z.getHiddenPref("supplementaryAsLink"));
 }
 
-// unescape Highwire's special html characters
 function HWunescape(str) {
 	if (!str || !str.includes('[')) return str;
 

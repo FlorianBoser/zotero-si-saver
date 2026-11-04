@@ -9,12 +9,12 @@
 	"priority": 280,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 */
 
 /*

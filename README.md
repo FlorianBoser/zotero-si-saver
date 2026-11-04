@@ -89,8 +89,8 @@ Other browsers, macOS and Linux are untested. Reports are welcome, see
 
 ## Installation
 
-**You need:** Zotero on your computer, the Zotero Connector in your browser, and
-Zotero running while you save.
+**You need:** Zotero on your computer, started at least once, the Zotero Connector in
+your browser, and Zotero running while you save.
 
 1. **Download the files.** On this page choose `Code > Download ZIP` and unpack it.
 2. **Quit Zotero** completely.
@@ -104,15 +104,16 @@ Zotero running while you save.
    If you moved your Zotero data, the folder is inside the location shown under
    `Edit > Settings > Advanced > Files and Folders > Data Directory Location`.
 4. **Copy the files.** Copy all six `.js` files from the `translators` folder of the
-   download into that folder and replace the existing files:
+   download into that folder:
 
-   * `Atypon Journals.js`
-   * `Nature Publishing Group.js`
-   * `ScienceDirect.js`
-   * `Silverchair.js`
-   * `Wiley Online Library.js`
-   * `arXiv.org.js`
-5. **Start Zotero.**
+   * `Atypon Journals SI Saver.js`
+   * `Nature Publishing Group SI Saver.js`
+   * `ScienceDirect SI Saver.js`
+   * `Silverchair SI Saver.js`
+   * `Wiley Online Library SI Saver.js`
+   * `arXiv.org SI Saver.js`
+5. **Start Zotero.** It deletes the six official files with the same names but without
+   `SI Saver`. This is expected, see [How It Works](#how-it-works).
 6. **Reload the Connector.** Open `chrome://extensions` and click the reload arrow on
    the Zotero Connector card.
 7. **Check two settings.** Both are usually already correct.
@@ -132,14 +133,15 @@ Zotero running while you save.
 
 ## Updating and Uninstalling
 
-**Update:** repeat the installation with the new files. Every release changes the
-`lastUpdated` date inside the files, and the Connector picks up new code only when
-this date changes.
+**Update:** repeat the installation and replace the six `SI Saver` files. Every release
+changes the `lastUpdated` date inside the files, and the Connector picks up new code only
+when this date changes.
 
 **Uninstall:**
 
-1. Quit Zotero and delete the six files from the translators folder.
-2. Start Zotero and choose `Edit > Settings > Advanced`, then `Reset Translators...`.
+1. Quit Zotero and delete the six `SI Saver` files from the translators folder.
+2. Start Zotero, open `Edit > Settings > Advanced > Files and Folders` and under
+   `Database Maintenance` click `Reset Translators...`.
 3. Reload the Connector in `chrome://extensions`.
 
 Reset Translators removes every modified translator. If you added other custom
@@ -149,9 +151,13 @@ SI files that were already saved stay in your library.
 
 ## Known Limitations
 
-* **No official updates for these six translators.** To keep Zotero from replacing
-  them, their date is set to 2099. If a publisher changes its website, a save can
-  lose its SI or fail until the files here are updated.
+* **No official updates for these six translators.** Zotero keeps these files instead
+  of newer official versions. If a publisher changes its website, a save can lose its SI
+  or fail until the files here are updated. This behavior comes from reading the code of
+  Zotero 10.0.7 and from a test with an official file placed beside a patched one. A real
+  update from Zotero has not been observed yet. If SI stops arriving, check that the six
+  files are still in the folder.
+* **Save from the article page.** Search results, lists and arXiv PDF pages save no SI.
 * **A failed SI download shows no error.** Check that the file arrived, especially for
   large SI files. The Connector stops any download after 60 seconds.
 * **Save one article at a time.** A large SI file went missing when two articles were
@@ -161,17 +167,23 @@ SI files that were already saved stay in your library.
   article again usually worked. The cause is not known yet.
 * **Word files from ScienceDirect end in `.doc`,** also when they are really DOCX. The
   publisher's server labels them that way. They still open in Word.
-* **Needs Zotero running.** Without Zotero, the Connector uses the official translators
-  and no SI is saved.
+* **Keep Zotero running.** All tests were done with Zotero open.
 * **Zotero runs its usual fallback.** When a patched translator fails, the Connector
   tries the next one, so the error message can name a different translator than the
   publisher's own.
 
 ## How It Works
 
-The Connector asks the running Zotero for its translators, and Zotero keeps the copy
-with the newest `lastUpdated` date. That is why a file with a date in the future
-replaces the official one with no change to Zotero or the Connector.
+The Connector asks the running Zotero for its translators. When two files in the
+translators folder have the same translator ID, Zotero keeps the one with the newest
+`lastUpdated` date and deletes the other. The patched files have the official IDs, a date
+in 2099 and their own file names. So they win over the official files, also when an
+official update later writes a new file with the official name, with no change to Zotero
+or the Connector.
+
+A patched file with the official name would not survive, because an update simply
+overwrites that file. The exception is a translator that Zotero retires, which is deleted
+under any name.
 
 Zotero already has code for SI on some sites, behind the hidden setting
 `attachSupplementary`, but much of it no longer matches current websites. The patches:
@@ -182,8 +194,9 @@ Zotero already has code for SI on some sites, behind the hidden setting
 * repair ChemRxiv items, which otherwise arrive as journal articles with the date in
   the volume and issue fields
 
-Every change in the code is marked with the comment `SI_saver`. All other code is
-unchanged from [zotero/translators](https://github.com/zotero/translators).
+Added code is marked with the comment `SI_saver`. Old SI code that no longer matched the
+websites was removed. All other code is unchanged from
+[zotero/translators](https://github.com/zotero/translators).
 
 ## Contributing
 
@@ -210,11 +223,13 @@ npm ci
 npm test
 ```
 
-The tests run the translators in Node against small hand-written pages in
-`tests/fixtures`. They check which files are selected, not the downloads, so please
-also try a change in the browser. When you change a translator, keep these rules:
+This needs Node.js 24. The tests run the translators in Node against small hand-written
+pages in `tests/fixtures`, with the citation downloads replaced by stand-ins. They check
+which files are selected, not the downloads, so please also try a change in the browser.
+When you change a translator, keep these rules:
 
-* Change `lastUpdated` in every file you touch, or the Connector keeps the old code
+* Give all six files one new `lastUpdated`, or the Connector keeps the old code
+* Keep the `SI Saver` file names, an official update would overwrite the official names
 * Save only PDF, DOC and DOCX
 * Do not work around publisher bot checks
 * Add test pages by hand, never copy a publisher's page into the repository
@@ -224,7 +239,7 @@ also try a change in the browser. When you change a translator, keep these rules
 The changes in this project are licensed under AGPL-3.0-or-later, see [LICENSE](LICENSE).
 The translator files come from [zotero/translators](https://github.com/zotero/translators)
 and keep their original authors, license statements and test cases. Each modified file
-says so at its top. `ScienceDirect.js` has no license statement of its own and relies on
+says so at its top. `ScienceDirect SI Saver.js` has no license statement of its own and relies on
 the [statement for the Zotero project](https://www.zotero.org/support/licensing).
 
 **Credits.** The translators were created by the authors below and improved by the
@@ -233,12 +248,12 @@ only adds the SI handling.
 
 | File | Original authors |
 |---|---|
-| `Atypon Journals.js` | Sebastian Karcher and Abe Jellinek |
-| `Nature Publishing Group.js` | Aurimas Vinckevicius |
-| `ScienceDirect.js` | Michael Berkowitz and Aurimas Vinckevicius |
-| `Silverchair.js` | Sebastian Karcher |
-| `Wiley Online Library.js` | Sean Takats, Michael Berkowitz, Avram Lyon and Aurimas Vinckevicius |
-| `arXiv.org.js` | Sean Takats and Michael Berkowitz |
+| `Atypon Journals SI Saver.js` | Sebastian Karcher and Abe Jellinek |
+| `Nature Publishing Group SI Saver.js` | Aurimas Vinckevicius |
+| `ScienceDirect SI Saver.js` | Michael Berkowitz and Aurimas Vinckevicius |
+| `Silverchair SI Saver.js` | Sebastian Karcher |
+| `Wiley Online Library SI Saver.js` | Sean Takats, Michael Berkowitz, Avram Lyon and Aurimas Vinckevicius |
+| `arXiv.org SI Saver.js` | Sean Takats and Michael Berkowitz |
 
 This is an independent project. It is not affiliated with or endorsed by Zotero or
 any publisher. You are responsible for following the terms of your publisher access.

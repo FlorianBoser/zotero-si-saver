@@ -34,7 +34,7 @@ Real saves in Google Chrome with Zotero 10.0.7 and Connector 5.0.217 on Windows.
 | Wiley | Mol. Inform. | `10.1002/minf.202100294` | 1 PDF |
 | Elsevier | Tetrahedron Lett. | `10.1016/j.tetlet.2018.09.041` | 1 Word file |
 | Elsevier | Chem, on ScienceDirect | `10.1016/j.chempr.2020.02.017` | 1 PDF |
-| Elsevier | Matter, on ScienceDirect | `10.1016/j.matt.2024.10.015` | 1 PDF |
+| Elsevier | Matter, on ScienceDirect | `10.1016/j.matt.2024.10.015` | 1 PDF, plus a combined copy in an earlier build |
 | Oxford University Press | Nucleic Acids Res. | `10.1093/nar/gkag870` | 1 DOCX |
 | arXiv | Preprint | `2610.10320` | 2 PDF |
 | ChemRxiv | Preprint | `10.26434/chemrxiv-2024-1ctkh` | 1 PDF |

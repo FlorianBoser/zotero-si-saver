@@ -9,12 +9,12 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:04"
+	"lastUpdated": "2099-01-01 00:00:05"
 }
 
 /*
 	Modified on 2026-11-04 by the zotero-si-saver project to also save supporting
-	information. Changes are marked with "SI_saver".
+	information. Added code is marked with "SI_saver".
 
 	The original translator was written by Michael Berkowitz and Aurimas Vinckevicius.
 	This file has no license statement of its own. It comes from the Zotero project,
@@ -249,6 +249,7 @@ function siSaverAddSupplements(doc, item) {
 	}
 }
 
+// SI_saver: one attachment in the form Zotero expects
 function siSaverAttachment(title, url, extension) {
 	return {
 		title: title,
@@ -407,6 +408,7 @@ async function processRIS(doc, text, isSearchResult = false) {
 				proxy: false
 			});
 		}
+		// SI_saver: adds the SI files, a search result page does not list them
 		if (!isSearchResult) {
 			siSaverAddSupplements(doc, item);
 		}
