@@ -107,6 +107,38 @@ for (const [label, translator, page, url, save, count] of SAVES) {
 	});
 }
 
+test('A Wiley save through the fallback for pages without a DOI keeps the SI', async () => {
+	const url = 'https://onlinelibrary.wiley.com/doi/full/10.1002/x';
+	const { doc, sandbox, completed } = load('Wiley Online Library SI Saver.js', 'wiley_no_doi_synthetic.html', url);
+	await sandbox.scrapeBibTeX(doc, url);
+	assert.equal(completed.length, 1);
+	assert.equal(completed[0].attachments.filter(isSi).length, 2);
+});
+
+test('A ScienceDirect search result saves the item without SI', async () => {
+	const url = 'https://www.sciencedirect.com/science/article/pii/S1';
+	const { doc, sandbox, completed } = load('ScienceDirect SI Saver.js', 'sciencedirect_si_synthetic.html', url);
+	await sandbox.scrape(doc, url, true);
+	assert.equal(completed.length, 1);
+	assert.equal(completed[0].attachments.filter(isSi).length, 0);
+});
+
+test('A Nature save without SI still completes the item once', () => {
+	const url = 'https://www.nature.com/articles/x';
+	const { doc, sandbox, completed } = load('Nature Publishing Group SI Saver.js', 'no_si_synthetic.html', url);
+	sandbox.scrape(doc, url);
+	assert.equal(completed.length, 1);
+	assert.equal(completed[0].attachments.filter(a => /MOESM/.test(a.url)).length, 0);
+});
+
+test('A Silverchair save without SI still completes the item', async () => {
+	const url = 'https://pubs.acs.org/x/article/1/1/1/1/x';
+	const { doc, sandbox, completed } = load('Silverchair SI Saver.js', 'no_si_synthetic.html', url);
+	await sandbox.scrape(doc, url);
+	assert.equal(completed.length, 1);
+	assert.equal(completed[0].attachments.filter(a => !a.document).length, 0);
+});
+
 test('A full ChemRxiv save repairs the item', async () => {
 	const url = 'https://chemrxiv.org/doi/full/10.26434/chemrxiv-2024-x';
 	const { doc, sandbox, completed } = load('Atypon Journals SI Saver.js', 'atypon_si_synthetic.html', url);
@@ -138,6 +170,26 @@ for (const [translator, url] of [['Atypon Journals SI Saver.js', SCIENCE], ['arX
 		assert.equal(item.attachments.length, 2);
 	});
 }
+
+// The official IDs, a file with another ID would run beside the official translator
+const OFFICIAL_IDS = {
+	'Atypon Journals SI Saver.js': '5af42734-7cd5-4c69-97fc-bc406999bdba',
+	'Nature Publishing Group SI Saver.js': '6614a99-479a-4524-8e30-686e4d66663e',
+	'ScienceDirect SI Saver.js': 'b6d0a7a-d076-48ae-b2f0-b6de28b194e',
+	'Silverchair SI Saver.js': '3bae3a55-f021-4b59-8a14-43701f336adf',
+	'Wiley Online Library SI Saver.js': 'fe728bc9-595a-4f03-98fc-766f1d8d0936',
+	'arXiv.org SI Saver.js': 'ecddda2e-4fc6-4aea-9f17-ef3b56d7377a',
+};
+
+test('Every patched file keeps the ID of its official translator', () => {
+	const folder = path.join(ROOT, 'translators');
+	const found = {};
+	for (const name of fs.readdirSync(folder)) {
+		const source = fs.readFileSync(path.join(folder, name), 'utf8');
+		found[name] = JSON.parse(source.match(/^\s*\{[\s\S]*?^\}/m)[0]).translatorID;
+	}
+	assert.deepEqual(found, OFFICIAL_IDS);
+});
 
 test('No patched file can be overwritten by an official update', () => {
 	const folder = path.join(ROOT, 'translators');

@@ -9,7 +9,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2099-01-01 00:00:05"
+	"lastUpdated": "2099-01-01 00:00:06"
 }
 
 /*
@@ -35,7 +35,6 @@
 	<http://www.gnu.org/licenses/>.
 */
 
-// mimetype map for supplementary attachments
 // SI_saver: the only file types saved from the current website
 var siSaverTypes = {
 	pdf: 'application/pdf',
@@ -70,6 +69,7 @@ function attachSupplementary(doc, item) {
 	attachCurrentSupplements(doc, item, Z.getHiddenPref("supplementaryAsLink"));
 }
 
+// unescape Highwire's special html characters
 function HWunescape(str) {
 	if (!str || !str.includes('[')) return str;
 
@@ -615,20 +615,14 @@ function scrape(doc, url) {
 		
 		// attach supplementary data
 		// SI_saver: attached without consulting the hidden preference
-		var async;
 		try {	// don't fail if we can't attach supplementary data
-			async = attachSupplementary(doc, item, function (doc, item) {
-				item.complete();
-			});
+			attachSupplementary(doc, item);
 		}
 		catch (e) {
 			Z.debug("Error attaching supplementary information.");
 			Z.debug(e);
-			if (async) item.complete();
 		}
-		if (!async) {
-			item.complete();
-		}
+		item.complete();
 	}, doc, url);
 }
 

@@ -1,7 +1,8 @@
 # Tested articles
 
 Real saves in Google Chrome with Zotero 10.0.7 and Connector 5.0.217 on Windows.
-"SI files" counts the files that arrived in addition to the article.
+"SI files" counts the files that arrived in addition to the article. Results come from
+the builds before the final one, a retest of the final build is pending.
 
 | Platform | Journal | DOI or ID | SI files |
 |---|---|---|---|

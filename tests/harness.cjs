@@ -40,7 +40,8 @@ function load(translator, page, url, prefs = {}) {
 		tags: [],
 		notes: [],
 		complete() {
-			completed.push(this);
+			// A copy, because Zotero ignores anything added after this call
+			completed.push({ ...this, attachments: [...this.attachments] });
 		},
 	});
 	const sandbox = {

@@ -154,10 +154,10 @@ SI files that were already saved stay in your library.
 * **No official updates for these six translators.** Zotero keeps these files instead
   of newer official versions. If a publisher changes its website, a save can lose its SI
   or fail until the files here are updated. This behavior comes from reading the code of
-  Zotero 10.0.7 and from a test with an official file placed beside a patched one. A real
-  update from Zotero has not been observed yet. If SI stops arriving, check that the six
-  files are still in the folder.
-* **Save from the article page.** Search results, lists and arXiv PDF pages save no SI.
+  Zotero 10.0.7. A real update from Zotero has not been observed yet. If SI stops
+  arriving, check that the six files are still in the folder.
+* **Save from the article page on ScienceDirect and arXiv.** Their search results, lists
+  and arXiv PDF pages save no SI.
 * **A failed SI download shows no error.** Check that the file arrived, especially for
   large SI files. The Connector stops any download after 60 seconds.
 * **Save one article at a time.** A large SI file went missing when two articles were
