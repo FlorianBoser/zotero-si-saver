@@ -1,6 +1,7 @@
 'use strict';
-// Loads a Zotero translator into a sandbox together with one test page.
-// The page's own scripts never run. Z and ZU hold only the helpers the tests need,
+// Loads a translator into a sandbox together with one test page. The official translator
+// it calls is replaced by a stand-in, because the official files are not in this repository.
+// The page's own scripts never run. Z and ZU hold only the helpers the translators use,
 // so a missing helper fails loudly instead of passing by accident.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -8,18 +9,12 @@ const vm = require('node:vm');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const ROOT = path.resolve(__dirname, '..');
-const CITATION = '@article{x, title={X}}';
-const ATOM = `<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
-<entry><id>http://arxiv.org/abs/2601.00001v1</id><title>X</title><summary>Y</summary>
-<published>2026-01-01T00:00:00Z</published><updated>2026-01-01T00:00:00Z</updated>
-<author><name>A Person</name></author></entry></feed>`;
+const ARTICLE = { title: 'Full Text PDF', url: 'https://example.org/article.pdf', mimeType: 'application/pdf' };
 
-function translatorCode(name) {
+function split(name) {
 	const source = fs.readFileSync(path.join(ROOT, 'translators', name), 'utf8');
 	const header = source.match(/^\s*\{[\s\S]*?^\}/m);
-	return source
-		.slice(header.index + header[0].length)
-		.split(/\/\*\*\s*BEGIN TEST CASES\s*\*\*\//)[0];
+	return { meta: JSON.parse(header[0]), code: source.slice(header.index + header[0].length) };
 }
 
 // The same cleanup the Connector applies before translators see a page
@@ -29,88 +24,54 @@ function connectorHtml(html) {
 		.replace(/<noscript(?:\s[^>]*)?(?:\/>|>.*?<\/noscript>)/gis, '');
 }
 
-function load(translator, page, url, prefs = {}) {
+const standIn = {
+	detectWeb: () => 'journalArticle',
+	doWeb: (doc, url, passOn) => passOn({ itemType: 'journalArticle', attachments: [{ ...ARTICLE }] }),
+};
+
+function load(translator, page, url, { prefs = {}, official = {} } = {}) {
 	const html = fs.readFileSync(path.join(__dirname, 'fixtures', page), 'utf8');
 	const { window } = new JSDOM(connectorHtml(html), { url, virtualConsole: new VirtualConsole() });
 	const doc = window.document;
 	const completed = [];
-	const newItem = () => ({
-		attachments: [],
-		creators: [],
-		tags: [],
-		notes: [],
-		complete() {
-			// A copy, because Zotero ignores anything added after this call
-			completed.push({ ...this, attachments: [...this.attachments] });
-		},
-	});
+	const called = [];
+	const documents = [];
+	const stand = { ...standIn, ...official };
+
+	// A copy, because Zotero ignores anything added after this call
+	const complete = function () {
+		completed.push({ ...this, attachments: [...this.attachments] });
+	};
 	const sandbox = {
-		URL,
 		Set,
-		Z: {
-			getHiddenPref: name => prefs[name],
-			debug: () => {},
-		},
+		Z: { getHiddenPref: name => prefs[name], debug: () => {} },
 		ZU: {
 			trimInternal: value => value.replace(/\s+/g, ' ').trim(),
-			// Stand in for the citation download, so a save can run without the network
-			doPost: (url, body, callback) => callback(CITATION),
-			doGet: (url, callback) => callback(CITATION),
-			processDocuments: (url, callback) => callback(doc),
-			xpathText: (node, expression) => {
-				const owner = node.ownerDocument || node;
-				return owner.evaluate(expression, node, null, window.XPathResult.STRING_TYPE, null).stringValue || null;
-			},
-			capitalizeTitle: value => value,
-			cleanAuthor: value => ({ lastName: value }),
-			cleanDOI: value => value,
-			cleanISSN: value => value,
-			cleanTags: value => value,
-			removeDiacritics: value => value,
-			getItemArray: () => {},
 			strToISO: value => value,
-			xpath: (node, expression) => {
-				const owner = node.ownerDocument || node;
-				const result = owner.evaluate(expression, node, null, window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-				return Array.from({ length: result.snapshotLength }, (_, i) => result.snapshotItem(i));
-			},
 		},
-		// Stands in for the citation download, so a scrape can run without the network
-		requestText: async url => (/arxiv/.test(url) ? ATOM : 'TY  - JOUR\nER  - '),
-		DOMParser: window.DOMParser,
-		requestDocument: async () => doc,
-		XPathResult: window.XPathResult,
+		attr: (node, selector, name) => node.querySelector(selector)?.getAttribute(name) ?? '',
 		Zotero: {
-			debug: () => {},
-			Item: function (itemType) {
-				Object.assign(this, newItem(), { itemType });
-			},
-			loadTranslator: () => {
+			loadTranslator: (type) => {
 				const handlers = {};
-				const emit = () => handlers.itemDone(null, { ...newItem(), title: 'X', date: '' });
 				return {
-					setTranslator: () => {},
-					setString: () => {},
-					setDocument: () => {},
+					setTranslator: id => called.push({ type, id }),
+					setDocument: value => documents.push(value),
 					setHandler: (name, handler) => {
 						handlers[name] = handler;
 					},
-					translate: async () => {
-						emit();
-					},
-					getTranslatorObject: (callback) => {
-						callback({ addCustomFields: () => {}, doWeb: emit });
-					},
+					getTranslatorObject: async () => (stand.missing ? undefined : { detectWeb: stand.detectWeb }),
+					translate: async () => stand.doWeb(doc, url, (item) => {
+						// As in Zotero, complete() belongs to the calling translator here
+						item.complete = complete;
+						handlers.itemDone(null, item);
+					}),
 				};
 			},
 		},
-		attr: (node, selector, name) => node.querySelector(selector)?.getAttribute(name) ?? '',
-		text: (node, selector) => node.querySelector(selector)?.textContent ?? '',
 	};
-	sandbox.Zotero.Utilities = sandbox.ZU;
 	vm.createContext(sandbox);
-	vm.runInContext(translatorCode(translator), sandbox);
-	return { doc, sandbox, completed };
+	vm.runInContext(split(translator).code, sandbox);
+	return { doc, sandbox, completed, called, documents, url };
 }
 
-module.exports = { load, ROOT };
+module.exports = { load, split, ROOT, ARTICLE };

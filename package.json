@@ -1,8 +1,8 @@
 {
   "name": "zotero-si-saver",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Patched Zotero web translators that also save supporting information",
+  "description": "Zotero web translators that also save supporting information",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "test": "node --test tests/translators.test.cjs"

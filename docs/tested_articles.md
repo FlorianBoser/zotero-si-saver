@@ -1,8 +1,13 @@
 # Tested articles
 
 Real saves in Google Chrome with Zotero 10.0.7 and Connector 5.0.217 on Windows.
-"SI files" counts the files that arrived in addition to the article. One article per
-platform was repeated with the final files, the others ran on the builds just before.
+"SI files" counts the files that arrived in addition to the article. The current files were
+saved with `10.1021/jacs.5c22031`, `10.1039/c5sc04751j`, `10.1038/s41467-020-19266-y`,
+`10.1126/science.abo4282`, `10.1002/anie.202204647`, `10.1016/j.matt.2024.10.015`,
+`10.1093/nar/gkag870`, `2610.10320` and `10.26434/chemrxiv-2024-1ctkh`. `10.1073/pnas.2618341123`
+and `10.1002/chem.71052` ran on a test build of 0.2.0, before its last small fixes. The others
+ran on version 0.1.0, which read the SI lists with the same selectors but patched the official
+translators directly.
 
 | Platform | Journal | DOI or ID | SI files |
 |---|---|---|---|
@@ -39,3 +44,22 @@ platform was repeated with the final files, the others ran on the builds just be
 | Oxford University Press | Nucleic Acids Res. | `10.1093/nar/gkag870` | 1 DOCX |
 | arXiv | Preprint | `2610.10320` | 2 PDF |
 | ChemRxiv | Preprint | `10.26434/chemrxiv-2024-1ctkh` | 1 PDF |
+
+ChemRxiv `10.26434/chemrxiv-2024-1ctkh` saved no SI once, when saved quickly after opening the
+page, and saved it on the next try. The cause was not established.
+
+## Failed saves
+
+| Platform | Journal | DOI or ID | Result |
+|---|---|---|---|
+| PNAS | Proc. Natl. Acad. Sci. U.S.A. | `10.1073/pnas.2619778123` | On version 0.1.0: error, saved by Embedded Metadata, no SI. Not repeated since |
+
+## List pages
+
+Saved with a test build of 0.2.0, before its last small fixes. Only the official translators
+run on these pages.
+
+| Page | Result |
+|---|---|
+| Wiley table of contents, Angew. Chem. Int. Ed. | Selection dialog, selected articles without SI |
+| Science table of contents | Embedded Metadata, a snapshot of the page, no dialog and no articles |
