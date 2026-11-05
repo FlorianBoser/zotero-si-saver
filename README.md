@@ -129,11 +129,11 @@ browser, and Zotero running while you save.
 8. **Try it.** Reload an open article page, or open this one, and save it with the Connector:
 
    ```
-   https://doi.org/10.1038/s41467-020-19266-y
+   https://doi.org/10.1021/jacs.6c00127
    ```
 
-   The Zotero item should now hold the article PDF and a second PDF, the 16-page SI. The
-   Connector button should name `Nature Publishing Group SI Saver` when you point at it.
+   The Zotero item should now hold the article and its SI as an additional file. The Connector
+   button should name `Silverchair SI Saver` when you point at it.
 
 ## How to Update or Uninstall
 
