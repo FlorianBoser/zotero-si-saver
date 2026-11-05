@@ -59,7 +59,7 @@ article list, says which articles were repeated with the current files and lists
 
 | Platform | Journals tested | Articles | SI as PDF | SI as Word |
 |---|---|---|---|---|
-| ACS | J. Am. Chem. Soc., J. Chem. Inf. Model. | 4 | Works | No example tested |
+| ACS | J. Am. Chem. Soc., J. Chem. Inf. Model. | 5 | Works | No example tested |
 | RSC | Chem. Sci., Chem. Commun., Digital Discovery, React. Chem. Eng. | 4 | Works | No example tested |
 | Springer Nature | Nature, Nat. Commun., Commun. Chem., Nat. Synth., Nat. Comput. Sci., Nat. Mach. Intell., Nat. Chem. Eng. | 7 | Works | No example tested |
 | AAAS | Science, Sci. Adv. | 4 | Works | No example tested |
